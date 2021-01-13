@@ -8,7 +8,6 @@ will output it, instead of having to create a new embed per function
 we can have it so we can safely assume the subjects that NEED to be in the list and if
 someone tries adding a deadline for a subject not in the list then returns "Subject not
 in config" or something
--Test all ways of breaking it
 -The view deadlines function will have you specify the subject you want to view,
 if you do not type the specific subject, it will give you a list of all the subjects
 -Consider adding a description argument for each deadline that may be optional,
