@@ -116,6 +116,7 @@ module.exports =
   description: 'Deadline commands',
   execute(msg, args)
   {
+    if (!funcs[args[1]]) return;
     const func = funcs[args[1]];
     func(msg, args);
   }
