@@ -16,7 +16,7 @@ for (const file of commandFiles)
   client.commands.set(command.name, command);
 }
 
-// Events
+/* Events */
 client.on('ready', () =>
 {
   console.log(`${client.user.username} is on.`);
@@ -27,21 +27,17 @@ client.on('message', msg =>
 {
   if (msg.author.id === client.user.id) return;
 
-  const args = msg.content.slice(prefix.length).split(/ +/);
-  
+  const args = msg.content.slice(prefix.length).split(' ');
   if (msg.content.startsWith(prefix))
   {
     let commandName = args[0];
     let command = client.commands.get(commandName);
-    if (typeof client.commands.get(commandName) === 'undefined')
-    {
-      msg.channel.send("Command does not exist!");
-      return;
-    }
+    if (typeof client.commands.get(commandName) === 'undefined') { return; }
     command.execute(msg, args, client);
   }
 })
 
+/*  Check if necessary json files exist */
 if (!fs.existsSync("deadlines.json"))
 {
   const json = {};
@@ -54,8 +50,9 @@ if (!fs.existsSync("deadlines.json"))
 if (!fs.existsSync("config.json"))
 {
   const json = {};
-  json.prefix = "?";
-  fs.writeFile("config.json", JSON.stringify(json), err =>
+  json.prefix = "dl ";
+  json.token = "PUT BOT TOKEN HERE";
+  fs.writeFile("config.json", JSON.stringify(json), err => 
   {
     if (err) console.log(err);
   });
