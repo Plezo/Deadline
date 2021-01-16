@@ -23,22 +23,22 @@ const fs = require('fs')
 // Creates deadline with given info
 function create(msg, args)
 {
-  if (!args[3] || !args[4]) return;
+  if (new Date(args[2]) === "Invalid Date" || !args[3]) return;
 
   let jsonObj = JSON.parse(fs.readFileSync("deadlines.json"), "utf-8");
-  const subject = args[2];
+  const date = args[2];
 
-  if (!jsonObj[subject])
-    jsonObj[subject] = [];
+  if (!jsonObj[date])
+    jsonObj[date] = [];
 
   deadlineObj = 
   {
-    number: jsonObj[subject].length + 1,
-    assignment: args[3],
-    due: args[4]
+    number: jsonObj[date].length,
+    assignment: args.splice(3).join(' '),
+    due: date
   };
  
-  jsonObj[subject].push(deadlineObj);
+  jsonObj[date].push(deadlineObj);
 
   fs.writeFile("deadlines.json", JSON.stringify(jsonObj), err =>
   {
@@ -55,14 +55,14 @@ function create(msg, args)
 function remove(msg, args)
 {
   let jsonObj = JSON.parse(fs.readFileSync("deadlines.json"), "utf-8");
-  const subject = args[2];
+  const date = args[2];
   const assignmentNum = args[3];
 
-  if (!jsonObj[subject] || !jsonObj[subject][assignmentNum - 1]) return;
+  if (!jsonObj[date] || !jsonObj[date][assignmentNum]) return;
 
-  jsonObj[subject].splice(assignmentNum - 1, 1);
-  for (let i = assignmentNum - 1; i < jsonObj[subject].length; ++i)
-    jsonObj[subject][i].number--;
+  jsonObj[date].splice(assignmentNum, 1);
+  for (let i = assignmentNum - 1; i < jsonObj[date].length; ++i)
+    jsonObj[date][i].number--;
 
   fs.writeFile("deadlines.json", JSON.stringify(jsonObj), err =>
   {
@@ -75,31 +75,27 @@ function remove(msg, args)
   msg.channel.send({embed: embedMsg});
 }
 
-// Views a list of deadlines given subject
-// If no subject is passed, output all the subjects
+// Views the list of deadlines
 function view(msg, args)
 {
   let jsonObj = JSON.parse(fs.readFileSync("deadlines.json"), "utf-8");
-  const subject = args[2];
 
   let embedMsg = new Discord.MessageEmbed()
-  .setColor("#FECF6A");
+  .setColor("#FECF6A")
+  .setTitle("Deadlines:")
 
-  if (!subject)
+  let dateArr = [];
+  const keys = Object.keys(jsonObj);
+  
+  keys.forEach((date) => { dateArr.push(date); });
+  dateArr.sort((d1, d2) => { return new Date(d1) - new Date(d2); });  
+
+  dateArr.forEach((date) =>
   {
-    let keys = Object.keys(jsonObj);
-    embedMsg.setTitle("Subjects")
-    keys.forEach((subj) => {embedMsg.addField(subj, `${jsonObj[subj].length} deadline(s)`)});
-  }
-  else if (!jsonObj[subject]) return;
-  else
-  {
-    embedMsg.setTitle(subject);
-    jsonObj[subject].forEach((obj) =>
-    {
-      embedMsg.addField(`${obj.number}: ${obj.assignment}`, `Due: ${obj.due}`);
-    });  
-  }
+    let deadlineStr = " ";
+    jsonObj[date].forEach((obj) => { deadlineStr += obj.assignment + '\n'; });
+    embedMsg.addField(date, deadlineStr);
+  });
   msg.channel.send({embed: embedMsg});
 }
 
