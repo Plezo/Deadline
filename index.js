@@ -16,11 +16,41 @@ for (const file of commandFiles)
   client.commands.set(command.name, command);
 }
 
+function checkDeadlines()
+{
+  let jsonObj = JSON.parse(fs.readFileSync("deadlines.json", "utf-8"));
+
+  const keys = Object.keys(jsonObj);
+  const today = new Date();
+
+  keys.forEach((date) =>
+  {
+    const dateObj = new Date(date);
+    if (today.getMonth() > dateObj.getMonth() 
+    && today.getDate() > dateObj.getDate()) 
+    { delete jsonObj[date]; }
+    else if (today.getMonth() === dateObj.getMonth() 
+    && today.getDate() === dateObj.getDate())
+    {
+      let embedMsg = new Discord.MessageEmbed()
+      .setColor("")
+      .setTitle("Today's Deadlines:")
+      jsonObj[date].forEach((deadline) =>
+      {
+        embedMsg.addField(deadline.number, deadline.assignment);
+      });
+      client.channels.cache.get(config.channelid).send({embed: embedMsg});
+    }
+  });
+}
+
+
 /* Events */
 client.on('ready', () =>
 {
   console.log(`${client.user.username} is on.`);
   console.log(`ID: ${client.user.id}`);
+  checkDeadlines();
 })
 
 client.on('message', msg =>
