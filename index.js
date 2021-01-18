@@ -26,9 +26,17 @@ function checkDeadlines()
   keys.forEach((date) =>
   {
     const dateObj = new Date(date);
-    if (today.getMonth() > dateObj.getMonth() 
-    && today.getDate() > dateObj.getDate()) 
-    { delete jsonObj[date]; }
+    if ((today.getMonth() > dateObj.getMonth() 
+    && today.getDate() > dateObj.getDate())
+    || (today.getMonth() === dateObj.getMonth()
+    && today.getDate() > dateObj.getDate())) 
+    {
+      delete jsonObj[date];
+      fs.writeFile("deadlines.json", JSON.stringify(jsonObj), err =>
+      {
+        if (err) console.log(err);
+      });
+    }
     else if (today.getMonth() === dateObj.getMonth() 
     && today.getDate() === dateObj.getDate())
     {
